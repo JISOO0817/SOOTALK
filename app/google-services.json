@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "371309611474",
+    "firebase_url": "https://fir-tut-c25ce.firebaseio.com",
+    "project_id": "fir-tut-c25ce",
+    "storage_bucket": "fir-tut-c25ce.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:371309611474:android:7943a1b512a5f70201600b",
+        "android_client_info": {
+          "package_name": "com.jisoozz.soosapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "371309611474-53dtvuvkclos4h1i717dlod543s8ehem.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXHQtoPGyya9WUF1cuWJ_AqO0YvHIvAi4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "371309611474-53dtvuvkclos4h1i717dlod543s8ehem.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
