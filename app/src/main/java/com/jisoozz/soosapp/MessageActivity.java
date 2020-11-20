@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -31,10 +32,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.jisoozz.soosapp.Adapter.MessageAdapter;
+import com.jisoozz.soosapp.Adapter.UserAdapter;
 import com.jisoozz.soosapp.Model.Chat;
 import com.jisoozz.soosapp.Model.Users;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -56,7 +59,7 @@ public class MessageActivity extends AppCompatActivity {
     MessageAdapter messageAdapter;
     List<Chat> mchat;
 
-    String userid;
+    String id;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -101,14 +104,15 @@ public class MessageActivity extends AppCompatActivity {
 */
 
         intent = getIntent();
-        userid = intent.getStringExtra("userid");
+        id = intent.getStringExtra("id");
 
         fuser = FirebaseAuth.getInstance().getCurrentUser();
-        reference = FirebaseDatabase.getInstance().getReference("MyUsers").child(userid);
+        reference = FirebaseDatabase.getInstance().getReference("MyUsers").child(id);
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Users user = dataSnapshot.getValue(Users.class);
+                assert user != null;
                 username.setText(user.getUsername());
 
                 if(user.getImageURL().equals("default")){
@@ -119,7 +123,7 @@ public class MessageActivity extends AppCompatActivity {
                             .into(imageView);
                 }
 
-                readMessages(fuser.getUid(),userid,user.getImageURL());
+                readMessages(fuser.getUid(),id,user.getImageURL());
             }
 
             @Override
@@ -133,7 +137,12 @@ public class MessageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String msg = msg_editText.getText().toString();
                 if(!msg.equals("")){
-                    sendMessage(fuser.getUid(),userid,msg);
+                    long time = System.currentTimeMillis();
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(Long.parseLong(String.valueOf(time)));
+                    String dateFormated = DateFormat.format("hh:mm", calendar).toString();
+
+                    sendMessage(fuser.getUid(),id,msg,dateFormated);
                 }else{
                     Toast.makeText(MessageActivity.this," 메세지를 입력해주세요.",Toast.LENGTH_LONG).show();
                 }
@@ -197,20 +206,23 @@ public class MessageActivity extends AppCompatActivity {
 
         if(resultCode == RESULT_OK){
 
+            assert data != null;
             ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            assert results != null;
             String str = results.get(0);  //음성으로 받은 내용을 담을 수 있는 위치
             msg_editText.setText(str);
 
         }
     }
 
-    private void sendMessage(String sender, String receiver, String message){
+    private void sendMessage(String sender, String receiver, String message, String dateFormated){
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
         HashMap<String,Object> hashMap = new HashMap<>();
         hashMap.put("sender",sender);
         hashMap.put("receiver",receiver);
         hashMap.put("message",message);
+        hashMap.put("time",dateFormated);
 
         reference.child("Chats").push().setValue(hashMap);
 
@@ -220,13 +232,13 @@ public class MessageActivity extends AppCompatActivity {
 
         final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("ChatList")   //Chatlist 데이터베이스컬럼
                 .child(fuser.getUid())
-                .child(userid);
+                .child(id);
 
         chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(!dataSnapshot.exists()){
-                    chatRef.child("id").setValue(userid);
+                    chatRef.child("id").setValue(id);
                 }
             }
 
@@ -254,7 +266,9 @@ public class MessageActivity extends AppCompatActivity {
 
                     Chat chat = snapshot.getValue(Chat.class);
 
-                    if(chat.getReceiver().equals(myid) && chat.getSender().equals(userid)|| chat.getReceiver().equals(userid) && chat.getSender().equals(myid)){
+                    assert chat != null;
+                    if(chat.getReceiver().equals(myid) && chat.getSender().equals(userid)||
+                            chat.getReceiver().equals(userid) && chat.getSender().equals(myid)){
                         mchat.add(chat);
                     }
 
@@ -274,7 +288,7 @@ public class MessageActivity extends AppCompatActivity {
 
 
     private void CheckStatus(String status){
-        reference = FirebaseDatabase.getInstance().getReference("MyUsers").child(fuser.getUid());
+        reference = FirebaseDatabase.getInstance().getReference("Users").child(fuser.getUid());
 
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("status",status);

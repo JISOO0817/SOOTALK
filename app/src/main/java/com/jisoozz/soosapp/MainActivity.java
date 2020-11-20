@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
+
+
         });
 
 
@@ -141,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void CheckStatus(String status){
 
-        myRef  = FirebaseDatabase.getInstance().getReference("MyUsers").child(firebaseUser.getUid());
+        myRef  = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
 
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("status", status);

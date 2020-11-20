@@ -13,7 +13,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.jisoozz.soosapp.MessageActivity;
+import com.jisoozz.soosapp.Model.Chat;
 import com.jisoozz.soosapp.Model.Users;
 import com.jisoozz.soosapp.R;
 
@@ -25,6 +33,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     private Context context;
     private List<Users> mUsers;
     private boolean isChat;
+    String theLastMessage;
 
 
     //생성자
@@ -52,14 +61,21 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
 
         final Users users = mUsers.get(position);
-        holder.username.setText(users.getUsername());
+        holder.userName.setText(users.getUsername());
 
         if(users.getImageURL().equals("default")){
-            holder.imageView.setImageResource(R.drawable.personicon);
+            holder.profileImage.setImageResource(R.drawable.personicon);
         }else{
             Glide.with(context)
                     .load(users.getImageURL())
-                    .into(holder.imageView);
+                    .into(holder.profileImage);
+        }
+
+
+        if(isChat){
+            lastMessage(users.getId(),holder.message);
+        }else {
+            holder.message.setVisibility(View.GONE);
         }
 
         //상태 체크
@@ -69,18 +85,16 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             if(users.getStatus().equals("online")){
                 holder.imageViewON.setVisibility(View.VISIBLE);
                 holder.imageViewOFF.setVisibility(View.GONE);
+
             }else{
                 holder.imageViewON.setVisibility(View.GONE);
                 holder.imageViewOFF.setVisibility(View.VISIBLE);
+
             }
         }else{
             holder.imageViewON.setVisibility(View.GONE);
             holder.imageViewOFF.setVisibility(View.GONE);
         }
-
-
-
-
 
 
         //아이템 클릭 리스너
@@ -89,8 +103,44 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 Intent i =new Intent(context, MessageActivity.class);
-                i.putExtra("userid",users.getId());
+                i.putExtra("id",users.getId());
                 context.startActivity(i);
+            }
+        });
+    }
+
+    private void lastMessage(final String id, final TextView message) {
+
+        theLastMessage = "default";
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Chats");
+
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds:dataSnapshot.getChildren()){
+                    Chat chat = ds.getValue(Chat.class);
+                    if(chat.getReceiver().equals(user.getUid()) && chat.getSender().equals(id) ||
+                    chat.getReceiver().equals(id) && chat.getSender().equals(user.getUid())){
+                        theLastMessage = chat.getMessage();
+                    }
+                }
+
+
+                switch (theLastMessage){
+                    case "default":
+                        message.setText("No Message");
+                        break;
+
+                    default:
+                        message.setText(theLastMessage);
+                        break;
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
     }
@@ -103,18 +153,19 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     public class ViewHolder extends RecyclerView.ViewHolder{
 
-        public TextView username;
-        public ImageView imageView;
+        public TextView userName,message;
+        public ImageView profileImage;
         public ImageView imageViewON;
         public ImageView imageViewOFF;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            username = itemView.findViewById(R.id.textView30);
-            imageView = itemView.findViewById(R.id.imageView30);
+            userName = itemView.findViewById(R.id.userName);
+            profileImage = itemView.findViewById(R.id.profileImage);
             imageViewON = itemView.findViewById(R.id.statusimageOn);
             imageViewOFF = itemView.findViewById(R.id.statusimageOFF);
+            message = itemView.findViewById(R.id.messageTv);
         }
     }
 

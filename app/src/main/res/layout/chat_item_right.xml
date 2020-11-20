@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:padding="8dp"
+    android:id="@+id/messageLayout"
     android:layout_height="wrap_content">
 
 
@@ -31,6 +32,15 @@
             android:textColor="@android:color/white"
             android:padding="8dp"
             android:layout_alignParentRight="true"/>
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="07:55"
+            android:layout_toLeftOf="@+id/show_message"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"/>
 
 
 

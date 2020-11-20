@@ -29,6 +29,7 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".Login_Activity"/>
 
+
     </application>
 
 </manifest>

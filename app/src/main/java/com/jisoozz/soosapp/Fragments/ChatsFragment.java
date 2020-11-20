@@ -72,6 +72,7 @@ public class ChatsFragment extends Fragment {
                 }
 
                 chatList();
+
             }
 
             @Override
@@ -100,13 +101,12 @@ public class ChatsFragment extends Fragment {
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Users user = snapshot.getValue(Users.class);
                     for(ChatList chatList : usersList){
+                        assert user != null;
                         if(user.getId().equals(chatList.getId())){
                             mUsers.add(user);
                         }
                     }
                 }
-
-
                 userAdapter = new UserAdapter(getContext(),mUsers,true);
                 recyclerView.setAdapter(userAdapter);
             }

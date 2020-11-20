@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "371309611474-e6rrvf4o3j1kflssqrpum9gl03veak2n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jisoozz.soosapp",
+            "certificate_hash": "6f2d22cebe2a6d66532fad0e9ae584b052e14050"
+          }
+        },
+        {
           "client_id": "371309611474-53dtvuvkclos4h1i717dlod543s8ehem.apps.googleusercontent.com",
           "client_type": 3
         }
